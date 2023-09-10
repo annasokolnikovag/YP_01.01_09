@@ -1,0 +1,5 @@
+Код,        Марка
+2D4GJ2      BMW
+4O7BK3      Mazda
+2K8NO5      Kia Rio
+2O5NT5      BMW
