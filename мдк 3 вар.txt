@@ -1,0 +1,92 @@
+В базе данных хранятся сведения о работе автосалона: дата текущего года,
+код менеджера, марка автомобиля, цена
+Структура входного файла sold.txt
+23.10.2022 1 Мерседес 30000
+12.11.2022 2 Мерседес 28000
+15.10.2022 1 БМВ 25000
+
+Структура входного файла manager.txt
+код менеджера, фамилия менеджера
+1 Винни-Пух
+2 Пятачок
+
+Определить количество проданных автомобилей за каждый месяц каждого менеджера, упорядочив по
+номеру месяца
+Структура выходного файла out.txt
+Месяц года Количество Фамилия менеджера
+10.2022 2 Винни-Пух
+11.2022 1 Пятачок
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_MANAGERS 100
+#define MAX_MONTHS 12
+
+struct Sale {
+    int day;
+    int month;
+    int year;
+    int managerCode;
+    char carBrand[50];
+    int price;
+};
+
+struct Manager {
+    int code;
+    char lastName[50];
+};
+
+int main() {
+    struct Sale sales[1000];
+    struct Manager managers[MAX_MANAGERS];
+    int salesCount, managerCount;
+
+    // Считываем данные о продажах из файла
+    FILE *salesFile = fopen("sold.txt", "r");
+    if (salesFile == NULL) {
+        printf("Ошибка при открытии файла sold.txt\n");
+        return 1;
+    }
+
+    int count = 0;
+    while (fscanf(salesFile, "%d.%d.%d %d %s %d", &sales[count].day, &sales[count].month, &sales[count].year, 
+                  &sales[count].managerCode, sales[count].carBrand, &sales[count].price) != EOF) {
+        count++;
+    }
+    salesCount = count;
+    fclose(salesFile);
+
+    // Считываем данные о менеджерах из файла
+    FILE *managersFile = fopen("manager.txt", "r");
+    if (managersFile == NULL) {
+        printf("Ошибка при открытии файла manager.txt\n");
+        return 1;
+    }
+
+    count = 0;
+    while (fscanf(managersFile, "%d %[^\n]", &managers[count].code, managers[count].lastName) != EOF) {
+        count++;
+    }
+    managerCount = count;
+    fclose(managersFile);
+
+    // Подсчитываем количество проданных автомобилей за каждый месяц каждого менеджера и выводим результаты
+    int salesByMonthAndManager[MAX_MONTHS][MAX_MANAGERS] = {0};
+
+    for (int i = 0; i < salesCount; i++) {
+        salesByMonthAndManager[sales[i].month - 1][sales[i].managerCode - 1]++;
+    }
+
+    printf("Месяц года Количество Фамилия менеджера\n");
+    for (int i = 0; i < MAX_MONTHS; i++) {
+        for (int j = 0; j < managerCount; j++) {
+            if (salesByMonthAndManager[i][j] > 0) {
+                printf("%02d.%d %d %s\n", i + 1, sales[0].year, salesByMonthAndManager[i][j], managers[j].lastName);
+            }
+        }
+    }
+
+    return 0;
+}
